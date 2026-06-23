@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraPlan // Enterprise Productivity Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scrollbar-width: thin;
+            scrollbar-color: #475569 #0f172a;
+        }
+        code, pre {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f4ff',
+                            100: '#e1e9ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            950: '#0c0a24'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full text-slate-100 antialiased overflow-hidden">
+
+    <div id="authContainer" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 px-4 sm:px-6 lg:px-8">
+        <div class="w-full max-w-md space-y-8 glass-panel p-8 rounded-2xl shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+            <div class="text-center">
+                <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-600/10 text-brand-500 mb-4">
+                    <i data-lucide="layers" class="w-6 h-6"></i>
+                </div>
+                <h2 id="authTitle" class="text-3xl font-bold tracking-tight text-white">Access AuraPlan Engine</h2>
+                <p id="authSubtitle" class="mt-2 text-sm text-slate-400">Deploy your custom workspace environments</p>
+            </div>
+            
+            <form id="authForm" class="mt-8 space-y-4" onsubmit="handleAuthSubmit(event)">
+                <div class="space-y-1">
+                    <label for="email" class="text-xs font-semibold text-slate-400 tracking-wider uppercase">Corporate Email</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+                            <i data-lucide="mail" class="w-4 h-4"></i>
+                        </span>
+                        <input id="email" type="email" required class="block w-full rounded-xl bg-slate-900/50 border border-slate-700 pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition duration-200 text-sm" placeholder="youssef@menofia.edu">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label for="password" class="text-xs font-semibold text-slate-400 tracking-wider uppercase">Access Token / Password</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                        </span>
+                        <input id="password" type="password" required class="block w-full rounded-xl bg-slate-900/50 border border-slate-700 pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none transition duration-200 text-sm" placeholder="••••••••••••">
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between text-xs pt-1">
+                    <label class="flex items-center space-x-2 text-slate-400 cursor-pointer">
+                        <input type="checkbox" checked class="rounded bg-slate-800 border-slate-700 text-brand-500 focus:ring-0 focus:ring-offset-0">
+                        <span>Keep node session open</span>
+                    </label>
+                    <button type="button" onclick="toggleAuthMode()" id="authSwitchBtn" class="text-brand-400 hover:text-brand-300 transition font-medium">Create local runtime instance</button>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent text-sm font-semibold rounded-xl text-white bg-brand-600 hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition duration-200 shadow-lg shadow-brand-600/20 mt-6">
+                    <span id="authSubmitText">Initialize Core</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="appContainer" class="hidden h-full flex overflow-hidden">
+        
+        <aside class="w-64 bg-slate-950 border-r border-slate-800 flex flex-col justify-between shrink-0">
+            <div>
+                <div class="h-16 flex items-center px-6 border-b border-slate-900 justify-between">
+                    <div class="flex items-center space-x-2.5">
+                        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-brand-600/30">
+                            <i data-lucide="layers" class="w-4 h-4"></i>
+                        </div>
+                        <span class="font-bold tracking-tight text-white text-base">AuraPlan <span class="text-xs text-brand-400 font-mono">v1.2</span></span>
+                    </div>
+                    <button class="text-slate-500 hover:text-slate-300 transition">
+                        <i data-lucide="sidebar" class="w-4 h-4"></i>
+                    </button>
+                </div>
+
+                <div class="p-4 mx-2 my-3 rounded-xl bg-slate-900/40 border border-slate-800/60 flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-600 to-purple-600 flex items-center justify-center font-bold text-sm text-white" id="userAvatar">
+                        U
+                    </div>
+                    <div class="overflow-hidden">
+                        <h4 class="text-xs font-semibold text-slate-200 truncate" id="userDisplayName">Active User</h4>
+                        <span class="text-[10px] text-emerald-400 font-mono flex items-center space-x-1">
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full inline-block animate-pulse mr-1"></span>Node Active
+                        </span>
+                    </div>
+                </div>
+
+                <nav class="px-3 space-y-1">
+                    <button onclick="switchView('dashboard')" class="view-route-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition duration-150 bg-slate-900 text-white" data-view="dashboard">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                        <span>Executive Control</span>
+                    </button>
+                    <button onclick="switchView('kanban')" class="view-route-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition duration-150 text-slate-400 hover:bg-slate-900 hover:text-slate-200" data-view="kanban">
+                        <i data-lucide="kanban" class="w-4 h-4"></i>
+                        <span>Kanban Sprint Pipelines</span>
+                    </button>
+                    <button onclick="switchView('calendar')" class="view-route-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition duration-150 text-slate-400 hover:bg-slate-900 hover:text-slate-200" data-view="calendar">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                        <span>Chronos Scheduler</span>
+                    </button>
+                    <button onclick="switchView('analytics')" class="view-route-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition duration-150 text-slate-400 hover:bg-slate-900 hover:text-slate-200" data-view="analytics">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                        <span>Performance Audits</span>
+                    </button>
+                </nav>
+
+                <div class="mt-6 px-3">
+                    <div class="flex items-center justify-between px-3 mb-2">
+                        <span class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">Isolated Environments</span>
+                        <button onclick="openCreateWorkspaceModal()" class="text-slate-500 hover:text-brand-400 transition">
+                            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </div>
+                    <div id="sidebarWorkspaces" class="space-y-0.5 max-h-[220px] overflow-y-auto pr-1">
+                        </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-900 space-y-2">
+                <div class="flex items-center justify-between text-xs text-slate-500 px-2">
+                    <span>Storage Stack Capacity</span>
+                    <span id="storageMetric">0%</span>
+                </div>
+                <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                    <div id="storageProgressBar" class="bg-brand-500 h-1.5 w-0 rounded-full transition-all duration-500"></div>
+                </div>
+                <button onclick="logoutSession()" class="w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 transition mt-2">
+                    <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                    <span>Disconnect Runtime</span>
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 flex flex-col bg-slate-900 overflow-hidden relative">
+            
+            <header class="h-16 border-b border-slate-800 shrink-0 flex items-center justify-between px-8 bg-slate-950/40 backdrop-blur-md z-10">
+                <div class="flex items-center space-x-4">
+                    <h1 id="viewTitle" class="text-xl font-bold tracking-tight text-white">Executive Control</h1>
+                    <div class="h-4 w-px bg-slate-800"></div>
+                    <span id="globalClock" class="text-xs font-mono text-slate-400 tracking-wider">00:00:00 // GMT</span>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <div class="relative max-w-xs hidden sm:block">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </span>
+                        <input id="globalSearch" type="text" oninput="handleGlobalSearch(this.value)" class="w-60 rounded-xl bg-slate-900 border border-slate-800 pl-9 pr-4 py-1.5 text-xs text-white placeholder-slate-500 focus:border-brand-500 focus:w-72 outline-none transition-all duration-300" placeholder="Query active record fields...">
+                    </div>
+                    <button onclick="openAddTaskModal()" class="flex items-center space-x-2 bg-brand-600 hover:bg-brand-500 text-white font-semibold px-4 py-2 rounded-xl text-xs transition duration-150 shadow-md shadow-brand-600/10">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Instantiate Task</span>
+                    </button>
+                </div>
+            </header>
+
+            <div id="viewportWorkspaceFrame" class="flex-1 overflow-y-auto p-8 relative">
+
+                <section id="view-dashboard" class="view-panel space-y-6 animate-fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                        <div class="glass-panel p-5 rounded-2xl flex items-center justify-between shadow-xl">
+                            <div class="space-y-1">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Active Node Records</span>
+                                <div class="text-3xl font-bold tracking-tight text-white" id="statTotalTasks">0</div>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center"><i data-lucide="activity"></i></div>
+                        </div>
+                        <div class="glass-panel p-5 rounded-2xl flex items-center justify-between shadow-xl">
+                            <div class="space-y-1">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Impending Deadlines</span>
+                                <div class="text-3xl font-bold tracking-tight text-amber-400" id="statPendingTasks">0</div>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center"><i data-lucide="clock"></i></div>
+                        </div>
+                        <div class="glass-panel p-5 rounded-2xl flex items-center justify-between shadow-xl">
+                            <div class="space-y-1">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Resolved Task Nodes</span>
+                                <div class="text-3xl font-bold tracking-tight text-emerald-400" id="statCompletedTasks">0</div>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i data-lucide="check-circle2"></i></div>
+                        </div>
+                        <div class="glass-panel p-5 rounded-2xl flex items-center justify-between shadow-xl">
+                            <div class="space-y-1">
+                                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Efficiency Index</span>
+                                <div class="text-3xl font-bold tracking-tight text-purple-400" id="statEfficiencyIndex">0%</div>
+                            </div>
+                            <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center"><i data-lucide="zap"></i></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 flex items-center space-x-2">
+                                    <i data-lucide="sliders-horizontal" class="w-4 h-4 text-brand-500"></i>
+                                    <span>High Priority Operational Queue</span>
+                                </h3>
+                                <div class="flex items-center space-x-2">
+                                    <select id="dashboardPriorityFilter" onchange="renderDashboard()" class="bg-slate-950 border border-slate-800 text-xs rounded-lg px-2.5 py-1 text-slate-300 outline-none">
+                                        <option value="all">All Priorities</option>
+                                        <option value="high">High Stress</option>
+                                        <option value="medium">Normal Node</option>
+                                        <option value="low">Low Thread</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="dashboardTaskQueue" class="space-y-3">
+                                </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="glass-panel p-5 rounded-2xl shadow-xl space-y-4">
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Yield Engine Throughput</h3>
+                                <div class="relative h-48 flex items-center justify-center">
+                                    <canvas id="miniDashboardChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="glass-panel p-5 rounded-2xl shadow-xl space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">System Logs</h3>
+                                    <span class="w-2 h-2 bg-emerald-400 rounded-full"></span>
+                                </div>
+                                <div id="systemLogFeed" class="space-y-2 max-h-40 overflow-y-auto text-[11px] font-mono text-slate-400">
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-kanban" class="view-panel hidden space-y-6 animate-fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-bold text-white tracking-tight">Agile Workflow Visualizer</h2>
+                            <p class="text-xs text-slate-400">Segment task blocks crosswise chronological execution phases</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start h-full">
+                        <div class="bg-slate-950/50 border border-slate-800/80 p-4 rounded-xl flex flex-col min-h-[500px]">
+                            <div class="flex items-center justify-between mb-3 border-b border-slate-900 pb-2">
+                                <span class="text-xs font-bold tracking-wider uppercase text-slate-400 flex items-center"><span class="w-2 h-2 bg-slate-500 rounded-full mr-2"></span>Backlog Pool</span>
+                                <span id="count-backlog" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 border border-slate-800 font-mono">0</span>
+                            </div>
+                            <div id="kanban-backlog" class="space-y-2 flex-1 overflow-y-auto max-h-[600px] pb-4" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'backlog')"></div>
+                        </div>
+                        <div class="bg-slate-950/50 border border-slate-800/80 p-4 rounded-xl flex flex-col min-h-[500px]">
+                            <div class="flex items-center justify-between mb-3 border-b border-slate-900 pb-2">
+                                <span class="text-xs font-bold tracking-wider uppercase text-blue-400 flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>In Flight</span>
+                                <span id="count-inprogress" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 border border-slate-800 font-mono">0</span>
+                            </div>
+                            <div id="kanban-inprogress" class="space-y-2 flex-1 overflow-y-auto max-h-[600px] pb-4" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'inprogress')"></div>
+                        </div>
+                        <div class="bg-slate-950/50 border border-slate-800/80 p-4 rounded-xl flex flex-col min-h-[500px]">
+                            <div class="flex items-center justify-between mb-3 border-b border-slate-900 pb-2">
+                                <span class="text-xs font-bold tracking-wider uppercase text-amber-400 flex items-center"><span class="w-2 h-2 bg-amber-500 rounded-full mr-2"></span>Review Phase</span>
+                                <span id="count-review" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 border border-slate-800 font-mono">0</span>
+                            </div>
+                            <div id="kanban-review" class="space-y-2 flex-1 overflow-y-auto max-h-[600px] pb-4" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'review')"></div>
+                        </div>
+                        <div class="bg-slate-950/50 border border-slate-800/80 p-4 rounded-xl flex flex-col min-h-[500px]">
+                            <div class="flex items-center justify-between mb-3 border-b border-slate-900 pb-2">
+                                <span class="text-xs font-bold tracking-wider uppercase text-emerald-400 flex items-center"><span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span>Merged Production</span>
+                                <span id="count-done" class="text-xs px-2 py-0.5 rounded-full bg-slate-900 text-slate-400 border border-slate-800 font-mono">0</span>
+                            </div>
+                            <div id="kanban-done" class="space-y-2 flex-1 overflow-y-auto max-h-[600px] pb-4" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'done')"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-calendar" class="view-panel hidden space-y-6 animate-fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h2 class="text-lg font-bold text-white tracking-tight">Time Horizon Array</h2>
+                            <p class="text-xs text-slate-400">Orchestrate macro schedules across comprehensive grid matrices</p>
+                        </div>
+                        <div class="flex items-center space-x-3 bg-slate-950 border border-slate-800 p-1 rounded-xl">
+                            <button onclick="changeCalendarScale('daily')" id="scaleBtn-daily" class="cal-scale-btn text-xs px-3 py-1.5 font-medium rounded-lg text-slate-400 transition">Day Matrix</button>
+                            <button onclick="changeCalendarScale('weekly')" id="scaleBtn-weekly" class="cal-scale-btn text-xs px-3 py-1.5 font-medium rounded-lg text-slate-400 transition">Week Scope</button>
+                            <button onclick="changeCalendarScale('monthly')" id="scaleBtn-monthly" class="cal-scale-btn text-xs px-3 py-1.5 font-medium rounded-lg bg-brand-600 text-white transition">Month Array</button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between glass-panel px-4 py-3 rounded-xl border border-slate-800/80">
+                        <div class="flex items-center space-x-2">
+                            <button onclick="navigateCalendarScope(-1)" class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:text-brand-400 text-slate-400 transition">
+                                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="navigateCalendarScope(1)" class="p-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:text-brand-400 text-slate-400 transition">
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </button>
+                            <span id="calendarDateDisplay" class="text-sm font-bold text-white tracking-tight pl-2">June 2026</span>
+                        </div>
+                        <button onclick="jumpCalendarToCurrentDate()" class="text-xs px-3 py-1.5 font-medium rounded-lg bg-slate-900 border border-slate-800 text-slate-300 hover:text-white transition">Reset Grid Origin</button>
+                    </div>
+
+                    <div id="calendarViewMasterGrid" class="glass-panel rounded-2xl overflow-hidden min-h-[550px]">
+                        </div>
+                </section>
+
+                <section id="view-analytics" class="view-panel hidden space-y-6 animate-fade-in">
+                    <div>
+                        <h2 class="text-lg font-bold text-white tracking-tight">System Vector Metrics</h2>
+                        <p class="text-xs text-slate-400">Deep telemetry processing monitoring operational execution efficiency metrics</p>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 glass-panel p-6 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">Throughput Target Volatility Array</h3>
+                            <div class="h-80 w-full">
+                                <canvas id="analyticsMainLineChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-panel p-6 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400">Workspace Allocation Density</h3>
+                            <div class="h-80 w-full flex items-center justify-center">
+                                <canvas id="analyticsDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <div id="taskModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="w-full max-w-lg glass-panel rounded-2xl overflow-hidden shadow-2xl animate-fade-in relative">
+            <div class="absolute top-0 left-0 w-full h-1 bg-brand-500"></div>
+            <div class="px-6 py-4 border-b border-slate-800/80 flex items-center justify-between bg-slate-950/40">
+                <h3 id="taskModalTitle" class="text-sm font-bold tracking-wider uppercase text-slate-300">Instantiate Operation Blueprint</h3>
+                <button onclick="closeAddTaskModal()" class="text-slate-500 hover:text-slate-300 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form id="taskForm" class="p-6 space-y-4" onsubmit="handleTaskFormSubmit(event)">
+                <input type="hidden" id="taskFormId">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Task Designation Descriptor</label>
+                    <input type="text" id="taskTitle" required class="block w-full rounded-xl bg-slate-900 border border-slate-800 px-4 py-2.5 text-white placeholder-slate-600 focus:border-brand-500 outline-none text-sm transition">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Metadata / Scope Details</label>
+                    <textarea id="taskDescription" rows="3" class="block w-full rounded-xl bg-slate-900 border border-slate-800 px-4 py-2.5 text-white placeholder-slate-600 focus:border-brand-500 outline-none text-sm transition" placeholder="Compile specific contextual engineering rules..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Workspace Boundary</label>
+                        <select id="taskWorkspaceSelect" class="block w-full rounded-xl bg-slate-900 border border-slate-800 px-3 py-2.5 text-white outline-none text-xs focus:border-brand-500 transition">
+                            </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Priority Flag</label>
+                        <select id="taskPriority" class="block w-full rounded-xl bg-slate-900 border border-slate-800 px-3 py-2.5 text-white outline-none text-xs focus:border-brand-500 transition">
+                            <option value="low">Low Thread</option>
+                            <option value="medium" selected>Normal Node</option>
+                            <option value="high">High Stress</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Target Deadline Date</label>
+                        <input type="date" id="taskDueDate" required class="block w-full rounded-xl bg-slate-900 border border-slate-800 px-3 py-2.5 text-white outline-none text-xs focus:border-brand-500 transition">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pipeline Routing Track</label>
+                        <select id="taskStatusSelect" class="block w-full rounded-xl bg-slate-900 border border-slate-800 px-3 py-2.5 text-white outline-none text-xs focus:border-brand-500 transition">
+                            <option value="backlog">Backlog Pool</option>
+                            <option value="inprogress">In Flight</option>
+                            <option value="review">Review Phase</option>
+                            <option value="done">Merged Production</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="pt-4 flex items-center justify-end space-x-2 border-t border-slate-800/80 mt-6">
+                    <button type="button" onclick="closeAddTaskModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-900 transition">Abort Execution</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-brand-600 hover:bg-brand-500 transition shadow-lg shadow-brand-600/10">Commit Matrix Array</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="workspaceModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="w-full max-w-sm glass-panel rounded-2xl overflow-hidden shadow-2xl animate-fade-in relative">
+            <div class="absolute top-0 left-0 w-full h-1 bg-purple-500"></div>
+            <div class="px-6 py-4 border-b border-slate-800/80 flex items-center justify-between bg-slate-950/40">
+                <h3 class="text-sm font-bold tracking-wider uppercase text-slate-300">Generate Environment Partition</h3>
+                <button onclick="closeCreateWorkspaceModal()" class="text-slate-500 hover:text-slate-300 transition"><i data-lucide="x" class="w-4 h-4"></i></button>
+            </div>
+            <form id="workspaceForm" class="p-6 space-y-4" onsubmit="handleWorkspaceFormSubmit(event)">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Partition Alias Name</label>
+                    <input type="text" id="workspaceTitle" required class="block w-full rounded-xl bg-slate-900 border border-slate-800 px-4 py-2.5 text-white placeholder-slate-600 focus:border-brand-500 outline-none text-sm transition" placeholder="e.g., Computer Science Thesis">
+                </div>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">UI Accent Profile Vector</label>
+                    <div class="grid grid-cols-5 gap-2 pt-2">
+                        <label class="cursor-pointer p-2 rounded-lg border border-slate-800 flex items-center justify-center bg-slate-900"><input type="radio" name="wColor" value="blue" checked class="text-blue-500"><span class="w-3 h-3 rounded-full bg-blue-500 ml-1"></span></label>
+                        <label class="cursor-pointer p-2 rounded-lg border border-slate-800 flex items-center justify-center bg-slate-900"><input type="radio" name="wColor" value="purple" class="text-purple-500"><span class="w-3 h-3 rounded-full bg-purple-500 ml-1"></span></label>
+                        <label class="cursor-pointer p-2 rounded-lg border border-slate-800 flex items-center justify-center bg-slate-900"><input type="radio" name="wColor" value="emerald" class="text-emerald-500"><span class="w-3 h-3 rounded-full bg-emerald-500 ml-1"></span></label>
+                        <label class="cursor-pointer p-2 rounded-lg border border-slate-800 flex items-center justify-center bg-slate-900"><input type="radio" name="wColor" value="amber" class="text-amber-500"><span class="w-3 h-3 rounded-full bg-amber-500 ml-1"></span></label>
+                        <label class="cursor-pointer p-2 rounded-lg border border-slate-800 flex items-center justify-center bg-slate-900"><input type="radio" name="wColor" value="rose" class="text-rose-500"><span class="w-3 h-3 rounded-full bg-rose-500 ml-1"></span></label>
+                    </div>
+                </div>
+                <div class="pt-4 flex items-center justify-end space-x-2 border-t border-slate-800/80 mt-6">
+                    <button type="button" onclick="closeCreateWorkspaceModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-900 transition">Abort</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-500 transition shadow-lg shadow-purple-600/10">Instantiate Partition</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        // ================= APPLICATION RECURSIVE CENTRAL DATABASE SYSTEM ENGINE =================
+        const SystemStateEngine = {
+            users: JSON.parse(localStorage.getItem('auraplan_users')) || {},
+            activeUserSession: JSON.parse(localStorage.getItem('auraplan_active_session')) || null,
+            activeView: 'dashboard',
+            calendarScopeDate: new Date(),
+            calendarScale: 'monthly',
+            searchFilterQuery: '',
+            charts: {},
+            
+            commitToDisk: function() {
+                localStorage.setItem('auraplan_users', JSON.stringify(this.users));
+                localStorage.setItem('auraplan_active_session', JSON.stringify(this.activeUserSession));
+                this.updateMetricsIndicators();
+            },
+            
+            getCurrentUserData: function() {
+                if(!this.activeUserSession) return null;
+                return this.users[this.activeUserSession];
+            },
+            
+            updateMetricsIndicators: function() {
+                const totalBytes = encodeURIComponent(JSON.stringify(localStorage)).length * 2;
+                const percentage = Math.min((totalBytes / (5 * 1024 * 1024)) * 100, 100).toFixed(2);
+                document.getElementById('storageMetric').innerText = percentage + '%';
+                document.getElementById('storageProgressBar').style.width = percentage + '%';
+            },
+
+            logSystemEvent: function(msg) {
+                const logsContainer = document.getElementById('systemLogFeed');
+                if(!logsContainer) return;
+                const timestamp = new Date().toISOString().slice(11, 19);
+                const logItem = document.createElement('div');
+                logItem.className = 'flex items-start space-x-2 text-slate-400';
+                logItem.innerHTML = `<span class="text-brand-400">[${timestamp}]</span> <span>${msg}</span>`;
+                logsContainer.prepend(logItem);
+                if(logsContainer.children.length > 30) logsContainer.removeChild(logsContainer.lastChild);
+            }
+        };
+
+        // Initialize Native Default Data Constructs for Test Vectors
+        function seedMockDataWorkspace(email) {
+            if (!SystemStateEngine.users[email].workspaces) {
+                SystemStateEngine.users[email].workspaces = [
+                    { id: 'ws-default', title: 'Global Operations', color: 'blue' },
+                    { id: 'ws-dev', title: 'System Development', color: 'purple' },
+                    { id: 'ws-personal', title: 'Personal Optimization', color: 'emerald' }
+                ];
+            }
+            if (!SystemStateEngine.users[email].tasks) {
+                SystemStateEngine.users[email].tasks = [
+                    { id: 'task-1', title: 'Implement JWT Simulation Core', description: 'Ensure persistent localStorage cross validation layer handles crashes natively.', workspaceId: 'ws-dev', priority: 'high', dueDate: new Date().toISOString().slice(0,10), status: 'inprogress' },
+                    { id: 'task-2', title: 'Refactor UI/UX Views Grid Architecture', description: 'Verify deep scaling mechanics on high refresh rate tracking setups.', workspaceId: 'ws-default', priority: 'medium', dueDate: new Date(Date.now() + 86400000).toISOString().slice(0,10), status: 'backlog' },
+                    { id: 'task-3', title: 'Optimize Cache Storage Indexes', description: 'Garbage collect legacy structural node blocks gracefully before overflow loops.', workspaceId: 'ws-default', priority: 'low', dueDate: new Date(Date.now() - 86400000).toISOString().slice(0,10), status: 'done' }
+                ];
+            }
+            SystemStateEngine.commitToDisk();
+        }
+
+        // ================= AUTHENTICATION HANDLERS =================
+        let isRegistrationMode = false;
+
+        function toggleAuthMode() {
+            isRegistrationMode = !isRegistrationMode;
+            document.getElementById('authTitle').innerText = isRegistrationMode ? "Create Runtime Account" : "Access AuraPlan Engine";
+            document.getElementById('authSubtitle').innerText = isRegistrationMode ? "Register profile token into encrypted client scope" : "Deploy your custom workspace environments";
+            document.getElementById('authSubmitText').innerText = isRegistrationMode ? "Provision Framework" : "Initialize Core";
+            document.getElementById('authSwitchBtn').innerText = isRegistrationMode ? "Sign in via active node credentials" : "Create local runtime instance";
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if(!email || !password) return;
+
+            if(isRegistrationMode) {
+                if(SystemStateEngine.users[email]) {
+                    alert('CRITICAL ERROR: Node vector alias already registered.');
+                    return;
+                }
+                SystemStateEngine.users[email] = { password: password, workspaces: [], tasks: [] };
+                SystemStateEngine.commitToDisk();
+                SystemStateEngine.logSystemEvent(`Allocated user profile schema for node: ${email}`);
+            }
+
+            // Authentication verification sequence
+            if(SystemStateEngine.users[email] && SystemStateEngine.users[email].password === password) {
+                SystemStateEngine.activeUserSession = email;
+                seedMockDataWorkspace(email);
+                SystemStateEngine.commitToDisk();
+                
+                // Animate Core App Transition Entrance
+                document.getElementById('authContainer').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                
+                // Render contextual session parameters
+                document.getElementById('userDisplayName').innerText = email;
+                document.getElementById('userAvatar').innerText = email.charAt(0).toUpperCase();
+                
+                SystemStateEngine.logSystemEvent(`Session token mounted for user context matching: ${email}`);
+                initializeApplicationLifecycle();
+            } else {
+                alert('ACCESS DENIED: Authentication checksum mismatch occurred.');
+            }
+        }
+
+        function logoutSession() {
+            SystemStateEngine.activeUserSession = null;
+            SystemStateEngine.commitToDisk();
+            document.getElementById('appContainer').classList.add('hidden');
+            document.getElementById('authContainer').classList.remove('hidden');
+        }
+
+        // ================= APPLICATION VIEW CONTROLLER ROUTER MODULE =================
+        function switchView(targetViewId) {
+            SystemStateEngine.activeView = targetViewId;
+            
+            // Loop panel visual states
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
+            const destinationPanel = document.getElementById(`view-${targetViewId}`);
+            if(destinationPanel) destinationPanel.classList.remove('hidden');
+
+            // Set state tracking on left router panel elements
+            document.querySelectorAll('.view-route-btn').forEach(btn => {
+                if(btn.getAttribute('data-view') === targetViewId) {
+                    btn.className = "view-route-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition duration-150 bg-slate-900 text-white";
+                } else {
+                    btn.className = "view-route-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition duration-150 text-slate-400 hover:bg-slate-900 hover:text-slate-200";
+                }
+            });
+
+            // Map corresponding view headings
+            const titlesMap = {
+                'dashboard': 'Executive Control Dashboard',
+                'kanban': 'Agile Kanban Sprint Pipeline Visualizer',
+                'calendar': 'Chronos Unified Scheduling Matrices',
+                'analytics': 'Advanced Performance Audit Vectors'
+            };
+            document.getElementById('viewTitle').innerText = titlesMap[targetViewId] || 'System Scope Workspace';
+            
+            SystemStateEngine.logSystemEvent(`Routed workspace scope viewport to view configuration module: [${targetViewId}]`);
+            executeCoreLifecycleRendering();
+        }
+
+        // ================= APPLICATION RENDER CONTROLLERS DATA CONTEXT SYSTEM =================
+        function executeCoreLifecycleRendering() {
+            updateDashboardMetricsSummary();
+            populateWorkspaceSelectorsDom();
+            
+            switch(SystemStateEngine.activeView) {
+                case 'dashboard':
+                    renderDashboard();
+                    break;
+                case 'kanban':
+                    renderKanbanPipelineGrid();
+                    break;
+                case 'calendar':
+                    renderCalendarDynamicScheduler();
+                    break;
+                case 'analytics':
+                    renderAdvancedAnalyticsGraphedEngines();
+                    break;
+            }
+            lucide.createIcons();
+        }
+
+        function updateDashboardMetricsSummary() {
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+
+            const filtered = data.tasks.filter(t => {
+                if(!SystemStateEngine.searchFilterQuery) return true;
+                return t.title.toLowerCase().includes(SystemStateEngine.searchFilterQuery.toLowerCase()) || 
+                       t.description.toLowerCase().includes(SystemStateEngine.searchFilterQuery.toLowerCase());
+            });
+
+            const total = filtered.length;
+            const done = filtered.filter(t => t.status === 'done').length;
+            const pending = filtered.filter(t => t.status !== 'done').length;
+            const rate = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            document.getElementById('statTotalTasks').innerText = total;
+            document.getElementById('statPendingTasks').innerText = pending;
+            document.getElementById('statCompletedTasks').innerText = done;
+            document.getElementById('statEfficiencyIndex').innerText = `${rate}%`;
+        }
+
+        function populateWorkspaceSelectorsDom() {
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+
+            // Update sidebar navigation elements
+            const sbContainer = document.getElementById('sidebarWorkspaces');
+            sbContainer.innerHTML = '';
+            
+            // Build explicit Master boundary select elements
+            const taskWsSelect = document.getElementById('taskWorkspaceSelect');
+            const priorSelectVal = taskWsSelect.value;
+            taskWsSelect.innerHTML = '';
+
+            data.workspaces.forEach(ws => {
+                // Render Sidebar UI Row Module
+                const row = document.createElement('div');
+                row.className = "group w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-400 hover:bg-slate-900/60 hover:text-slate-200 transition cursor-pointer";
+                const borderColors = { blue: 'bg-blue-500', purple: 'bg-purple-500', emerald: 'bg-emerald-500', amber: 'bg-amber-500', rose: 'bg-rose-500' };
+                const dotColor = borderColors[ws.color] || 'bg-slate-500';
+                
+                row.innerHTML = `
+                    <div class="flex items-center space-x-2.5 overflow-hidden">
+                        <span class="w-2 h-2 rounded-full ${dotColor} shrink-0"></span>
+                        <span class="truncate">${ws.title}</span>
+                    </div>
+                    <button onclick="handleDeleteWorkspace('${ws.id}', event)" class="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 transition pl-1">
+                        <i data-lucide="trash-2" class="w-3 h-3"></i>
+                    </button>
+                `;
+                sbContainer.appendChild(row);
+
+                // Option setup within create modal fields
+                const option = document.createElement('option');
+                option.value = ws.id;
+                option.innerText = ws.title;
+                taskWsSelect.appendChild(option);
+            });
+
+            if(priorSelectVal) taskWsSelect.value = priorSelectVal;
+        }
+
+        // ================= MODULE SUB-CONTROLLER: EXECUTIVE CONTROL PANEL RENDER =================
+        function renderDashboard() {
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+
+            const targetQueue = document.getElementById('dashboardTaskQueue');
+            targetQueue.innerHTML = '';
+
+            const priorityFilter = document.getElementById('dashboardPriorityFilter').value;
+
+            // Apply logical query masks
+            let tasks = data.tasks.filter(t => {
+                if(priorityFilter !== 'all' && t.priority !== priorityFilter) return false;
+                if(SystemStateEngine.searchFilterQuery) {
+                    return t.title.toLowerCase().includes(SystemStateEngine.searchFilterQuery.toLowerCase()) || 
+                           t.description.toLowerCase().includes(SystemStateEngine.searchFilterQuery.toLowerCase());
+                }
+                return true;
+            });
+
+            // Sort sequence by priority matrix arrays
+            const weight = { high: 3, medium: 2, low: 1 };
+            tasks.sort((a,b) => (weight[b.priority] || 0) - (weight[a.priority] || 0));
+
+            if(tasks.length === 0) {
+                targetQueue.innerHTML = `
+                    <div class="glass-panel p-8 text-center rounded-2xl text-slate-500 text-xs tracking-wider space-y-2">
+                        <i data-lucide="folder-open" class="w-8 h-8 mx-auto text-slate-600"></i>
+                        <p>No operational matrices matched the current query parameter bounds.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+                renderMiniDashboardMetricsGraph(0, 0);
+                return;
+            }
+
+            let completedCount = 0;
+            let outstandingCount = 0;
+
+            tasks.forEach(task => {
+                if(task.status === 'done') completedCount++; else outstandingCount++;
+                
+                const card = document.createElement('div');
+                card.className = `glass-panel p-4 rounded-xl flex items-center justify-between transition hover:border-slate-700/80 group border-l-2 ${task.status === 'done' ? 'opacity-60 border-l-emerald-500' : task.priority === 'high' ? 'border-l-rose-500' : 'border-l-blue-500'}`;
+                
+                const workspaceObj = data.workspaces.find(w => w.id === task.workspaceId) || { title: 'Shared Space' };
+                
+                card.innerHTML = `
+                    <div class="flex items-center space-x-4 max-w-[75%]">
+                        <button onclick="toggleTaskCompletionState('${task.id}')" class="w-5 h-5 rounded-md border ${task.status === 'done' ? 'bg-emerald-500 border-emerald-400 text-slate-950' : 'border-slate-600 text-transparent'} flex items-center justify-center transition shrink-0">
+                            <i data-lucide="check" class="w-3.5 h-3.5 stroke-[3]"></i>
+                        </button>
+                        <div class="overflow-hidden">
+                            <h4 class="text-xs font-semibold text-white truncate ${task.status === 'done' ? 'line-through text-slate-500' : ''}">${task.title}</h4>
+                            <p class="text-[11px] text-slate-400 truncate mt-0.5">${task.description || 'No complementary scope details provided.'}</p>
+                            <div class="flex items-center space-x-3 mt-1.5 flex-wrap gap-y-1">
+                                <span class="text-[9px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-medium">${workspaceObj.title}</span>
+                                <span class="text-[9px] text-slate-400 flex items-center font-mono"><i data-lucide="calendar" class="w-3 h-3 mr-1"></i>${task.dueDate}</span>
+                                <span class="text-[9px] font-mono tracking-wide px-1.5 rounded uppercase ${task.priority === 'high' ? 'text-rose-400 bg-rose-500/10' : task.priority === 'medium' ? 'text-blue-400 bg-blue-500/10' : 'text-slate-400 bg-slate-800'}">${task.priority}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-1 shrink-0 opacity-0 group-hover:opacity-100 transition duration-150">
+                        <button onclick="openEditTaskModal('${task.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+                        <button onclick="handleDeleteTask('${task.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>
+                    </div>
+                `;
+                targetQueue.appendChild(card);
+            });
+            lucide.createIcons();
+            renderMiniDashboardMetricsGraph(completedCount, outstandingCount);
+        }
+
+        function renderMiniDashboardMetricsGraph(done, pending) {
+            const ctx = document.getElementById('miniDashboardChart');
+            if(!ctx) return;
+            
+            if(SystemStateEngine.charts['miniDashboard']) {
+                SystemStateEngine.charts['miniDashboard'].destroy();
+            }
+
+            if(done === 0 && pending === 0) {
+                done = 0; pending = 1; // Safeguard visually blank canvases
+            }
+
+            SystemStateEngine.charts['miniDashboard'] = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Merged Complete', 'Pending Inbound'],
+                    datasets: [{
+                        data: [done, pending],
+                        backgroundColor: ['#10b981', '#3b82f6'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    cutout: '75%',
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        // ================= MODULE SUB-CONTROLLER: KANBAN WORKFLOW ENVIRONMENT =================
+        function renderKanbanPipelineGrid() {
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+
+            const statuses = ['backlog', 'inprogress', 'review', 'done'];
+            
+            statuses.forEach(status => {
+                const targetColumn = document.getElementById(`kanban-${status}`);
+                targetColumn.innerHTML = '';
+
+                let columnTasks = data.tasks.filter(t => t.status === status);
+                if(SystemStateEngine.searchFilterQuery) {
+                    columnTasks = columnTasks.filter(t => t.title.toLowerCase().includes(SystemStateEngine.searchFilterQuery.toLowerCase()));
+                }
+
+                document.getElementById(`count-${status}`).innerText = columnTasks.length;
+
+                columnTasks.forEach(task => {
+                    const wsObj = data.workspaces.find(w => w.id === task.workspaceId) || { title: 'Global Context' };
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-900 border border-slate-800/80 p-3.5 rounded-xl space-y-3 cursor-grab active:cursor-grabbing shadow-md hover:border-slate-700 transition";
+                    card.draggable = true;
+                    card.setAttribute('ondragstart', `handleDragStart(event, '${task.id}')`);
+                    
+                    card.innerHTML = `
+                        <div class="space-y-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-950 text-slate-400 font-mono border border-slate-800">${wsObj.title}</span>
+                                <span class="text-[9px] uppercase font-bold tracking-wider ${task.priority==='high'?'text-rose-400':task.priority==='medium'?'text-blue-400':'text-slate-500'}">${task.priority}</span>
+                            </div>
+                            <h4 class="text-xs font-semibold text-slate-100 leading-tight pt-1">${task.title}</h4>
+                        </div>
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-950 text-[10px] text-slate-400">
+                            <span class="flex items-center font-mono"><i data-lucide="clock" class="w-3 h-3 mr-1 text-slate-500"></i>${task.dueDate}</span>
+                            <div class="flex items-center space-x-1">
+                                <button onclick="openEditTaskModal('${task.id}')" class="p-1 hover:text-white transition"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+                            </div>
+                        </div>
+                    `;
+                    targetColumn.appendChild(card);
+                });
+            });
+            lucide.createIcons();
+        }
+
+        function handleDragStart(e, taskId) {
+            e.dataTransfer.setData('text/plain', taskId);
+        }
+        function allowDrop(e) {
+            e.preventDefault();
+        }
+        function handleDrop(e, targetStatus) {
+            e.preventDefault();
+            const taskId = e.dataTransfer.getData('text/plain');
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+
+            const task = data.tasks.find(t => t.id === taskId);
+            if(task && task.status !== targetStatus) {
+                const oldStatus = task.status;
+                task.status = targetStatus;
+                SystemStateEngine.commitToDisk();
+                SystemStateEngine.logSystemEvent(`Migrated task pipeline location: [${task.title}] from [${oldStatus}] to [${targetStatus}]`);
+                renderKanbanPipelineGrid();
+            }
+        }
+
+        // ================= MODULE SUB-CONTROLLER: CHRONOS CALENDAR CALCULATOR ENGINE =================
+        function changeCalendarScale(scale) {
+            SystemStateEngine.calendarScale = scale;
+            document.querySelectorAll('.cal-scale-btn').forEach(b => b.className = "cal-scale-btn text-xs px-3 py-1.5 font-medium rounded-lg text-slate-400 transition");
+            document.getElementById(`scaleBtn-${scale}`).className = "cal-scale-btn text-xs px-3 py-1.5 font-medium rounded-lg bg-brand-600 text-white transition";
+            renderCalendarDynamicScheduler();
+        }
+
+        function navigateCalendarScope(direction) {
+            const date = SystemStateEngine.calendarScopeDate;
+            if(SystemStateEngine.calendarScale === 'monthly') {
+                date.setMonth(date.getMonth() + direction);
+            } else if(SystemStateEngine.calendarScale === 'weekly') {
+                date.setDate(date.getDate() + (direction * 7));
+            } else {
+                date.setDate(date.getDate() + direction);
+            }
+            renderCalendarDynamicScheduler();
+        }
+
+        function jumpCalendarToCurrentDate() {
+            SystemStateEngine.calendarScopeDate = new Date();
+            renderCalendarDynamicScheduler();
+        }
+
+        function renderCalendarDynamicScheduler() {
+            const date = SystemStateEngine.calendarScopeDate;
+            const scale = SystemStateEngine.calendarScale;
+            const container = document.getElementById('calendarViewMasterGrid');
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!container || !data) return;
+
+            container.innerHTML = '';
+
+            const monthsLabels = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            
+            if(scale === 'monthly') {
+                document.getElementById('calendarDateDisplay').innerText = `${monthsLabels[date.getMonth()]} ${date.getFullYear()}`;
+                
+                // Construct standard 7-column header tracking week arrays
+                const headerGrid = document.createElement('div');
+                headerGrid.className = "grid grid-cols-7 bg-slate-950 border-b border-slate-800 text-center text-[10px] font-bold uppercase tracking-wider text-slate-400 py-2";
+                ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].forEach(day => {
+                    headerGrid.innerHTML += `<div>${day}</div>`;
+                });
+                container.appendChild(headerGrid);
+
+                const bodyGrid = document.createElement('div');
+                bodyGrid.className = "grid grid-cols-7 divide-x divide-y divide-slate-800/60 bg-slate-900/20";
+                
+                const firstDayIndex = new Date(date.getFullYear(), date.getMonth(), 1).getDay();
+                const totalDaysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+                
+                // Structural layout iteration arrays
+                for(let i = 0; i < firstDayIndex; i++) {
+                    bodyGrid.innerHTML += `<div class="p-2 min-h-[90px] bg-slate-950/20"></div>`;
+                }
+
+                for(let day = 1; day <= totalDaysInMonth; day++) {
+                    const dayString = `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    let dayTasks = data.tasks.filter(t => t.dueDate === dayString);
+
+                    let taskItemsHtml = '';
+                    dayTasks.forEach(t => {
+                        taskItemsHtml += `<div class="text-[9px] truncate px-1.5 py-0.5 mt-1 rounded bg-brand-600/20 border border-brand-500/30 text-brand-300 font-medium">${t.title}</div>`;
+                    });
+
+                    const isCurrentDayMatch = new Date().toDateString() === new Date(date.getFullYear(), date.getMonth(), day).toDateString();
+
+                    bodyGrid.innerHTML += `
+                        <div class="p-2 min-h-[95px] hover:bg-slate-800/30 transition flex flex-col justify-between">
+                            <span class="text-xs font-mono font-bold ${isCurrentDayMatch ? 'text-brand-400 bg-brand-500/10 px-1.5 py-0.5 rounded-md w-max' : 'text-slate-400'}">${day}</span>
+                            <div class="flex-1 overflow-y-auto max-h-[65px] scrollbar-none">${taskItemsHtml}</div>
+                        </div>
+                    `;
+                }
+                container.appendChild(bodyGrid);
+            } 
+            else if(scale === 'weekly') {
+                // Render custom segmented row timelines matching current week sequence parameters
+                const currentDayOfWeek = date.getDay();
+                const startOfWeek = new Date(date);
+                startOfWeek.setDate(date.getDate() - currentDayOfWeek);
+                
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+                document.getElementById('calendarDateDisplay').innerText = `Wk Scope: ${startOfWeek.toLocaleDateString()} - ${endOfWeek.toLocaleDateString()}`;
+
+                const listWrapper = document.createElement('div');
+                listWrapper.className = "divide-y divide-slate-800 p-4 space-y-2";
+
+                for(let i=0; i<7; i++) {
+                    const currentLoopDay = new Date(startOfWeek);
+                    currentLoopDay.setDate(startOfWeek.getDate() + i);
+                    const loopDayStr = currentLoopDay.toISOString().slice(0,10);
+                    
+                    let dayTasks = data.tasks.filter(t => t.dueDate === loopDayStr);
+
+                    let innerTasksPayload = '';
+                    if(dayTasks.length === 0) {
+                        innerTasksPayload = `<span class="text-xs text-slate-600 italic">No schedules mapped onto daily chronological index plane.</span>`;
+                    } else {
+                        dayTasks.forEach(t => {
+                            innerTasksPayload += `
+                                <div class="inline-flex items-center space-x-2 text-xs bg-slate-900 border border-slate-800 px-3 py-1 rounded-xl text-slate-200">
+                                    <span class="w-1.5 h-1.5 bg-brand-400 rounded-full"></span>
+                                    <span>${t.title}</span>
+                                </div>
+                            `;
+                        });
+                    }
+
+                    listWrapper.innerHTML += `
+                        <div class="py-3 flex flex-col md:flex-row md:items-center justify-between gap-2">
+                            <div class="w-40 shrink-0">
+                                <h5 class="text-xs font-bold text-white">${currentLoopDay.toLocaleDateString(undefined, {weekday: 'long'})}</h5>
+                                <span class="text-[10px] font-mono text-slate-500">${loopDayStr}</span>
+                            </div>
+                            <div class="flex-1 flex flex-wrap gap-2">${innerTasksPayload}</div>
+                        </div>
+                    `;
+                }
+                container.appendChild(listWrapper);
+            } 
+            else {
+                // Daily linear layout matrix mapping processing tracking structures
+                const dayStr = date.toISOString().slice(0,10);
+                document.getElementById('calendarDateDisplay').innerText = `Focus Day Array: ${dayStr}`;
+
+                let dayTasks = data.tasks.filter(t => t.dueDate === dayStr);
+                const dayWrapper = document.createElement('div');
+                dayWrapper.className = "p-6 space-y-4";
+
+                if(dayTasks.length === 0) {
+                    dayWrapper.innerHTML = `
+                        <div class="text-center py-12 text-slate-500 text-xs">
+                            <i data-lucide="sun" class="w-8 h-8 mx-auto text-slate-600 mb-2"></i>
+                            <p>No operational schedules provisioned on this track boundary alignment date context.</p>
+                        </div>
+                    `;
+                } else {
+                    dayTasks.forEach(t => {
+                        dayWrapper.innerHTML += `
+                            <div class="glass-panel p-4 rounded-xl flex items-center justify-between border-l-4 border-brand-500">
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">${t.title}</h4>
+                                    <p class="text-xs text-slate-400 mt-0.5">${t.description || 'No sub-context defined.'}</p>
+                                </div>
+                                <span class="text-xs font-mono uppercase bg-slate-950 px-2.5 py-1 rounded-xl text-slate-400 border border-slate-800">${t.priority}</span>
+                            </div>
+                        `;
+                    });
+                }
+                container.appendChild(dayWrapper);
+            }
+            lucide.createIcons();
+        }
+
+        // ================= MODULE SUB-CONTROLLER: DATA COMPILING ANALYTICS SUITE =================
+        function renderAdvancedAnalyticsGraphedEngines() {
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+
+            const ctxLine = document.getElementById('analyticsMainLineChart');
+            const ctxPipe = document.getElementById('analyticsDistributionChart');
+            if(!ctxLine || !ctxPipe) return;
+
+            // Garbage collect active pointers safely
+            if(SystemStateEngine.charts['analyticsLine']) SystemStateEngine.charts['analyticsLine'].destroy();
+            if(SystemStateEngine.charts['analyticsPipe']) SystemStateEngine.charts['analyticsPipe'].destroy();
+
+            // Calculate metrics breakdown parameters
+            const wsLabels = data.workspaces.map(w => w.title);
+            const wsCounts = data.workspaces.map(w => data.tasks.filter(t => t.workspaceId === w.id).length);
+
+            // Construct mock trending array indexing timeline sequences
+            const timelineLabels = ['Phase Alpha', 'Phase Beta', 'Phase Gamma', 'Current State Workspace'];
+            const historicalThroughput = [2, 5, 8, data.tasks.filter(t => t.status === 'done').length];
+
+            SystemStateEngine.charts['analyticsLine'] = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: timelineLabels,
+                    datasets: [{
+                        label: 'Task Velocity Indexing Track',
+                        data: historicalThroughput,
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+                    },
+                    plugins: { legend: { labels: { color: '#94a3b8' } } }
+                }
+            });
+
+            SystemStateEngine.charts['analyticsPipe'] = new Chart(ctxPipe, {
+                type: 'polarArea',
+                data: {
+                    labels: wsLabels,
+                    datasets: [{
+                        data: wsCounts,
+                        backgroundColor: ['rgba(59, 130, 246, 0.6)', 'rgba(168, 85, 247, 0.6)', 'rgba(16, 185, 129, 0.6)', 'rgba(245, 158, 11, 0.6)', 'rgba(244, 63, 94, 0.6)']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#94a3b8', boxWidth: 12 } } },
+                    scales: { r: { grid: { color: '#1e293b' }, angleLines: { color: '#1e293b' }, ticks: { display: false } } }
+                }
+            });
+        }
+
+        // ================= SYSTEM DATA STORAGE MUTATION MUTATORS OPERATORS =================
+        function openAddTaskModal() {
+            document.getElementById('taskFormId').value = '';
+            document.getElementById('taskForm').reset();
+            document.getElementById('taskModalTitle').innerText = "Instantiate Operation Blueprint";
+            document.getElementById('taskModal').classList.remove('hidden');
+            document.getElementById('taskModal').classList.add('flex');
+        }
+
+        function closeAddTaskModal() {
+            document.getElementById('taskModal').classList.add('hidden');
+            document.getElementById('taskModal').classList.remove('flex');
+        }
+
+        function openEditTaskModal(taskId) {
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+            const task = data.tasks.find(t => t.id === taskId);
+            if(!task) return;
+
+            document.getElementById('taskFormId').value = task.id;
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskWorkspaceSelect').value = task.workspaceId;
+            document.getElementById('taskPriority').value = task.priority;
+            document.getElementById('taskDueDate').value = task.dueDate;
+            document.getElementById('taskStatusSelect').value = task.status;
+
+            document.getElementById('taskModalTitle').innerText = "Mutate Existing Record Struct";
+            document.getElementById('taskModal').classList.remove('hidden');
+            document.getElementById('taskModal').classList.add('flex');
+        }
+
+        function handleTaskFormSubmit(e) {
+            e.preventDefault();
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+
+            const id = document.getElementById('taskFormId').value;
+            const title = document.getElementById('taskTitle').value.trim();
+            const description = document.getElementById('taskDescription').value.trim();
+            const workspaceId = document.getElementById('taskWorkspaceSelect').value;
+            const priority = document.getElementById('taskPriority').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+            const status = document.getElementById('taskStatusSelect').value;
+
+            if(!title || !dueDate) return;
+
+            if(id) {
+                // Mutating existing block record references
+                const task = data.tasks.find(t => t.id === id);
+                if(task) {
+                    task.title = title;
+                    task.description = description;
+                    task.workspaceId = workspaceId;
+                    task.priority = priority;
+                    task.dueDate = dueDate;
+                    task.status = status;
+                    SystemStateEngine.logSystemEvent(`Modified data payload attributes for task: [${title}]`);
+                }
+            } else {
+                // Constructing entirely unique item array tracking references
+                const newTask = {
+                    id: 'task-' + Date.now(),
+                    title, description, workspaceId, priority, dueDate, status
+                };
+                data.tasks.push(newTask);
+                SystemStateEngine.logSystemEvent(`Appended unique record tracking node: [${title}]`);
+            }
+
+            SystemStateEngine.commitToDisk();
+            closeAddTaskModal();
+            executeCoreLifecycleRendering();
+        }
+
+        function toggleTaskCompletionState(taskId) {
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+            const task = data.tasks.find(t => t.id === taskId);
+            if(task) {
+                task.status = task.status === 'done' ? 'backlog' : 'done';
+                SystemStateEngine.commitToDisk();
+                SystemStateEngine.logSystemEvent(`Toggled pipeline state parameter execution matrix for task: [${task.title}]`);
+                executeCoreLifecycleRendering();
+            }
+        }
+
+        function handleDeleteTask(taskId) {
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+            const initialLength = data.tasks.length;
+            data.tasks = data.tasks.filter(t => t.id !== taskId);
+            if(data.tasks.length < initialLength) {
+                SystemStateEngine.commitToDisk();
+                SystemStateEngine.logSystemEvent(`Purged task reference tracking block securely from partition scope storage layout.`);
+                executeCoreLifecycleRendering();
+            }
+        }
+
+        function openCreateWorkspaceModal() {
+            document.getElementById('workspaceForm').reset();
+            document.getElementById('workspaceModal').classList.remove('hidden');
+            document.getElementById('workspaceModal').classList.add('flex');
+        }
+        function closeCreateWorkspaceModal() {
+            document.getElementById('workspaceModal').classList.add('hidden');
+            document.getElementById('workspaceModal').classList.remove('flex');
+        }
+        function handleWorkspaceFormSubmit(e) {
+            e.preventDefault();
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+
+            const title = document.getElementById('workspaceTitle').value.trim();
+            const color = document.querySelector('input[name="wColor"]:checked').value;
+
+            if(!title) return;
+
+            const newWs = { id: 'ws-' + Date.now(), title, color };
+            data.workspaces.push(newWs);
+            SystemStateEngine.logSystemEvent(`Provisioned isolated memory execution framework layer partition: [${title}]`);
+            
+            SystemStateEngine.commitToDisk();
+            closeCreateWorkspaceModal();
+            executeCoreLifecycleRendering();
+        }
+
+        function handleDeleteWorkspace(wsId, e) {
+            e.stopPropagation(); // Avoid triggering execution framework selection parent loops
+            const data = SystemStateEngine.getCurrentUserData();
+            if(!data) return;
+
+            if(data.workspaces.length <= 1) {
+                alert('CRITICAL BOUNDARY ERROR: Core application execution requires at least one primary functional system partition layer.');
+                return;
+            }
+
+            if(confirm('Are you sure you want to delete this workspace and all associated tasks?')) {
+                data.workspaces = data.workspaces.filter(w => w.id !== wsId);
+                data.tasks = data.tasks.filter(t => t.workspaceId !== wsId);
+                SystemStateEngine.logSystemEvent(`Deallocated workspace partition context framework index stack.`);
+                SystemStateEngine.commitToDisk();
+                executeCoreLifecycleRendering();
+            }
+        }
+
+        function handleGlobalSearch(val) {
+            SystemStateEngine.searchFilterQuery = val.trim();
+            executeCoreLifecycleRendering();
+        }
+
+        // ================= UTILITY SYSTEMS REALTIME SYNC HARDWARE CLOCK =================
+        function startSystemClockEngine() {
+            setInterval(() => {
+                const clockEl = document.getElementById('globalClock');
+                if(clockEl) {
+                    const now = new Date();
+                    clockEl.innerText = `${now.toTimeString().split(' ')[0]} // ${now.toLocaleDateString()}`;
+                }
+            }, 1000);
+        }
+
+        // ================= LIFECYCLE MOUNT BOOTSTRAP INITIALIZATION =================
+        function initializeApplicationLifecycle() {
+            startSystemClockEngine();
+            executeCoreLifecycleRendering();
+            SystemStateEngine.logSystemEvent("AuraPlan Client Kernel successfully compiled. Real-time data sync active.");
+        }
+
+        // Self checking bootstrap node initializer execution routing
+        window.addEventListener('DOMContentLoaded', () => {
+            if(SystemStateEngine.activeUserSession) {
+                document.getElementById('authContainer').classList.add('hidden');
+                document.getElementById('appContainer').classList.remove('hidden');
+                document.getElementById('userDisplayName').innerText = SystemStateEngine.activeUserSession;
+                document.getElementById('userAvatar').innerText = SystemStateEngine.activeUserSession.charAt(0).toUpperCase();
+                initializeApplicationLifecycle();
+            } else {
+                lucide.createIcons();
+            }
+        });
+    </script>
+</body>
+</html>

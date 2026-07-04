@@ -356,9 +356,241 @@ input,select,textarea{font-family:var(--fb)}
 .dsep{width:1px;height:18px;background:var(--bd)}
 @media(max-width:900px){.sg{grid-template-columns:repeat(2,1fr)}.dg{grid-template-columns:1fr}.wg{grid-template-columns:repeat(4,1fr)}}
 @media(max-width:600px){.sg{grid-template-columns:1fr 1fr}.ac{width:calc(100vw - 28px);padding:28px 20px}.modal{width:calc(100vw - 24px);padding:22px}.fr{grid-template-columns:1fr}}
+
+/* ══════════════════════════════════════
+   LIVING ANIMATIONS — EVERYWHERE
+══════════════════════════════════════ */
+
+/* Floating particles canvas */
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5}
+
+/* Animated gradient background */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse at var(--mx,50%) var(--my,50%),rgba(155,32,128,.08) 0%,transparent 40%),
+    radial-gradient(ellipse at 80% 20%,rgba(212,100,42,.06) 0%,transparent 40%),
+    radial-gradient(ellipse at 20% 80%,rgba(30,104,120,.05) 0%,transparent 40%);
+  transition:background 0.3s ease;animation:bgpulse 8s ease-in-out infinite}
+@keyframes bgpulse{0%,100%{opacity:.7}50%{opacity:1}}
+
+/* Orb float ambient */
+.orb{position:fixed;border-radius:50%;pointer-events:none;z-index:0;filter:blur(60px);animation:orbfloat var(--d,12s) ease-in-out infinite var(--delay,0s)}
+@keyframes orbfloat{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(var(--x1,30px),var(--y1,-20px)) scale(1.05)}50%{transform:translate(var(--x2,-20px),var(--y2,30px)) scale(.95)}75%{transform:translate(var(--x3,20px),var(--y3,20px)) scale(1.08)}}
+
+/* ── Auth page ── */
+.ac{animation:cardrise .7s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes cardrise{from{opacity:0;transform:translateY(40px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.alm{animation:logobeat 2.8s ease-in-out infinite}
+@keyframes logobeat{0%,100%{box-shadow:0 6px 20px rgba(155,32,128,.4)}50%{box-shadow:0 6px 32px rgba(155,32,128,.7),0 0 40px rgba(212,100,42,.3)}}
+.atit{animation:textglow 3s ease-in-out infinite}
+@keyframes textglow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
+
+/* Input focus shake-in */
+.fi,.fs,.fta{transform-origin:left;transition:border-color .2s,box-shadow .2s,transform .15s}
+.fi:focus,.fta:focus{transform:scaleX(1.008)}
+
+/* Button press ripple */
+.bp,.bsv,.tbb{position:relative;overflow:hidden}
+.bp::after,.bsv::after,.tbb::after{content:'';position:absolute;inset:0;background:radial-gradient(circle,rgba(255,255,255,.3) 0%,transparent 60%);transform:scale(0);opacity:0;transition:transform .5s,opacity .5s}
+.bp:active::after,.bsv:active::after,.tbb:active::after{transform:scale(2.5);opacity:0;transition:none}
+
+/* ── Sidebar ── */
+#sb{position:relative}
+.ni{position:relative;overflow:hidden}
+.ni::before{content:'';position:absolute;left:-100%;top:0;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);
+  transition:left .4s ease}
+.ni:hover::before{left:100%}
+.nbdg{animation:bdgpulse 2s ease-in-out infinite}
+@keyframes bdgpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
+/* Sidebar mark spin on hover */
+.sbm{transition:transform .4s cubic-bezier(0.34,1.56,0.64,1),box-shadow .3s}
+#sb:hover .sbm{transform:rotate(10deg) scale(1.08)}
+
+/* ── Stat cards ── */
+.sc{transition:transform .3s cubic-bezier(0.34,1.56,0.64,1),box-shadow .3s,border-color .3s;
+  animation:cardfadein .5s ease forwards;opacity:0}
+.sc:nth-child(1){animation-delay:.05s}
+.sc:nth-child(2){animation-delay:.12s}
+.sc:nth-child(3){animation-delay:.19s}
+.sc:nth-child(4){animation-delay:.26s}
+@keyframes cardfadein{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+.sc:hover{transform:translateY(-6px) scale(1.025)}
+.sc:hover .scgl{opacity:.45;transform:scale(1.3)}
+.scgl{transition:opacity .4s,transform .4s}
+.scv{transition:transform .3s}
+.sc:hover .scv{transform:scale(1.06)}
+
+/* ── Task items ── */
+.ti{animation:tifadein .35s ease forwards;opacity:0}
+@keyframes tifadein{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
+.ti:hover{box-shadow:0 6px 28px rgba(155,32,128,.18),0 2px 8px rgba(0,0,0,.3)}
+.ti:hover .tt{background:linear-gradient(135deg,#F0E8FF,#C4359E);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* Stagger task items */
+.ti:nth-child(1){animation-delay:.04s}
+.ti:nth-child(2){animation-delay:.08s}
+.ti:nth-child(3){animation-delay:.12s}
+.ti:nth-child(4){animation-delay:.16s}
+.ti:nth-child(5){animation-delay:.20s}
+.ti:nth-child(6){animation-delay:.24s}
+.ti:nth-child(7){animation-delay:.28s}
+.ti:nth-child(8){animation-delay:.32s}
+.ti:nth-child(9){animation-delay:.36s}
+.ti:nth-child(10){animation-delay:.40s}
+
+/* Checkbox bounce */
+.ck{transition:transform .25s cubic-bezier(0.34,1.56,0.64,1),background .2s,border-color .2s,box-shadow .25s}
+.ck:hover{transform:scale(1.18)}
+.ck.on{animation:checkpop .35s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes checkpop{0%{transform:scale(1)}40%{transform:scale(1.35)}70%{transform:scale(.9)}100%{transform:scale(1)}}
+
+/* ── Cards ── */
+.card{animation:cardfadein .4s ease forwards;opacity:0;transition:box-shadow .3s,border-color .3s}
+.card:hover{border-color:rgba(155,32,128,.28);box-shadow:0 8px 32px rgba(155,32,128,.12)}
+
+/* ── Progress bar ── */
+.mpf{position:relative;overflow:hidden}
+.mpf::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+  animation:shimmer 2s ease-in-out infinite}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+
+/* ── Ring ── */
+.ro{animation:ringspin .6s ease-in;filter:drop-shadow(0 0 12px rgba(155,32,128,.3))}
+.ro:hover{filter:drop-shadow(0 0 20px rgba(155,32,128,.5))}
+@keyframes ringspin{from{transform:rotate(-10deg) scale(.9);opacity:0}to{transform:rotate(0) scale(1);opacity:1}}
+.rcp{animation:countup .8s ease forwards}
+@keyframes countup{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ── Topbar button ── */
+.tbb{transition:transform .25s cubic-bezier(0.34,1.56,0.64,1),box-shadow .25s,opacity .2s}
+.tbb:hover{transform:translateY(-2px) scale(1.04)}
+.tbb svg{transition:transform .3s cubic-bezier(0.34,1.56,0.64,1)}
+.tbb:hover svg{transform:rotate(90deg) scale(1.2)}
+
+/* ── Search bar ── */
+.sin{transition:width .3s ease,border-color .2s,box-shadow .2s,background .2s}
+.sic{transition:transform .3s,color .2s}
+.sin:focus ~ .sic,.tbsr:focus-within .sic{transform:translateY(-50%) scale(1.15);color:var(--ac)}
+
+/* ── Filter buttons ── */
+.fbtn{transition:all .2s cubic-bezier(0.34,1.56,0.64,1);position:relative;overflow:hidden}
+.fbtn:hover{transform:translateY(-2px) scale(1.04)}
+.fbtn.on{animation:fbtnpop .3s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes fbtnpop{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
+
+/* ── Modal ── */
+.ov.open .modal{animation:modalin .4s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes modalin{from{opacity:0;transform:scale(.88) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.mtt{animation:slidein .3s ease forwards}
+@keyframes slidein{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+.fg{animation:fgrise .3s ease forwards;opacity:0}
+.fg:nth-child(1){animation-delay:.05s}
+.fg:nth-child(2){animation-delay:.10s}
+.fg:nth-child(3){animation-delay:.15s}
+.fg:nth-child(4){animation-delay:.20s}
+.fg:nth-child(5){animation-delay:.25s}
+.fg:nth-child(6){animation-delay:.30s}
+.fg:nth-child(7){animation-delay:.35s}
+@keyframes fgrise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── Toast ── */
+.tst{position:relative;overflow:hidden}
+.tst::before{content:'';position:absolute;top:0;left:0;width:3px;height:0;background:inherit;animation:toastbar .3s ease forwards .1s}
+@keyframes toastbar{to{height:100%}}
+
+/* ── Week view cards ── */
+.wc{animation:cardfadein .4s ease forwards;opacity:0}
+.wc:nth-child(1){animation-delay:.04s}.wc:nth-child(2){animation-delay:.08s}
+.wc:nth-child(3){animation-delay:.12s}.wc:nth-child(4){animation-delay:.16s}
+.wc:nth-child(5){animation-delay:.20s}.wc:nth-child(6){animation-delay:.24s}
+.wc:nth-child(7){animation-delay:.28s}
+.wtc{transition:transform .2s cubic-bezier(0.34,1.56,0.64,1),box-shadow .2s}
+.wtc:hover{transform:translateX(4px) scale(1.02);box-shadow:0 4px 16px rgba(155,32,128,.2)}
+
+/* ── Month cells ── */
+.md{transition:background .2s,transform .2s cubic-bezier(0.34,1.56,0.64,1),box-shadow .2s}
+.md:hover{transform:scale(1.04);box-shadow:0 4px 20px rgba(155,32,128,.15);z-index:2;position:relative}
+.mtd{transition:transform .15s}
+.mtd:hover{transform:scale(1.04)}
+
+/* ── Settings rows ── */
+.sr{transition:background .2s,padding-left .2s}
+.sr:hover{background:rgba(155,32,128,.06);padding-left:8px}
+.sse{animation:cardfadein .4s ease forwards;opacity:0}
+.sse:nth-child(1){animation-delay:.05s}.sse:nth-child(2){animation-delay:.12s}
+.sse:nth-child(3){animation-delay:.19s}.sse:nth-child(4){animation-delay:.26s}
+
+/* ── Page transition ── */
+#ct{transition:opacity .25s ease,transform .25s ease}
+
+/* ── Nav active indicator ── */
+.ni.on::after{content:'';position:absolute;right:0;top:20%;height:60%;width:3px;
+  border-radius:2px 0 0 2px;background:linear-gradient(180deg,#9B2080,#D4642A);
+  animation:indic .3s ease forwards}
+@keyframes indic{from{height:0;opacity:0}to{height:60%;opacity:1}}
+
+/* ── Category breakdown bars ── */
+.mpf{animation:barfill 1s ease forwards}
+@keyframes barfill{from{width:0!important}to{}}
+
+/* ── Pulse on overdue badge ── */
+.dl.ov{animation:overpulse 1.5s ease-in-out infinite}
+@keyframes overpulse{0%,100%{box-shadow:0 0 0 0 rgba(224,50,78,.4)}50%{box-shadow:0 0 0 4px rgba(224,50,78,0)}}
+
+/* ── Cursor glow ── */
+#cursor-glow{position:fixed;width:300px;height:300px;border-radius:50%;pointer-events:none;z-index:1;
+  background:radial-gradient(circle,rgba(155,32,128,.05) 0%,transparent 70%);
+  transform:translate(-50%,-50%);transition:transform .08s linear;mix-blend-mode:screen}
+
+/* ── Tag pop ── */
+.tg{transition:transform .2s cubic-bezier(0.34,1.56,0.64,1),box-shadow .2s}
+.tg:hover{transform:scale(1.12) translateY(-1px);box-shadow:0 2px 10px rgba(155,32,128,.3)}
+
+/* ── Avatar spin on hover ── */
+.uav{transition:transform .4s cubic-bezier(0.34,1.56,0.64,1),box-shadow .3s}
+.uav:hover{transform:scale(1.12) rotate(8deg)}
+
+/* ── Empty state float ── */
+.esi{display:inline-block;animation:emofloat 3s ease-in-out infinite}
+@keyframes emofloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+/* ── Upcoming row hover ── */
+div[onclick^="openMod"]{transition:background .2s,padding-left .2s,transform .2s}
+div[onclick^="openMod"]:hover{background:rgba(155,32,128,.08)!important;padding-left:12px;transform:translateX(2px)}
+
+/* ── Scroll scrollbar animated ── */
+#ct::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#9B2080,#D4642A,#1E6878);border-radius:3px;transition:background .3s}
+
+/* ── Wadd button ── */
+.wadd{transition:all .25s cubic-bezier(0.34,1.56,0.64,1)}
+.wadd:hover{transform:scale(1.04) translateY(-1px)}
+
+/* ── Sidebar collapse button ── */
+.scb{transition:transform .3s cubic-bezier(0.34,1.56,0.64,1),background .2s}
+.scb:hover{transform:scale(1.15) rotate(180deg)}
+
+/* ── Global smooth for all buttons ── */
+button{transition:transform .2s,opacity .2s,box-shadow .2s}
+button:active:not(.ck):not(.stck){transform:scale(.95)!important}
+
+/* ── Announcement dot on nav ── */
+@keyframes navblink{0%,100%{opacity:1}50%{opacity:.3}}
 </style>
 </head>
 <body>
+
+
+<!-- Cursor glow -->
+<div id="cursor-glow"></div>
+
+<!-- Ambient orbs -->
+<div class="orb" style="width:500px;height:500px;background:rgba(155,32,128,.07);top:-150px;left:-150px;--d:14s;--delay:0s;--x1:40px;--y1:-30px;--x2:-30px;--y2:40px;--x3:20px;--y3:-20px"></div>
+<div class="orb" style="width:400px;height:400px;background:rgba(212,100,42,.05);bottom:-100px;right:-100px;--d:18s;--delay:-5s;--x1:-30px;--y1:20px;--x2:40px;--y2:-30px;--x3:-20px;--y3:20px"></div>
+<div class="orb" style="width:300px;height:300px;background:rgba(30,104,120,.05);top:40%;left:60%;--d:22s;--delay:-10s;--x1:20px;--y1:30px;--x2:-30px;--y2:-20px;--x3:30px;--y3:10px"></div>
+<canvas id="particles"></canvas>
 
 <div id="auth">
   <div class="agl"><div class="o1"></div><div class="o2"></div><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
@@ -964,6 +1196,233 @@ async function init() {
   document.getElementById('auth').style.display='flex';
 }
 init();
+
+
+// ══════════════════════════════════════
+// LIVING ANIMATIONS JS
+// ══════════════════════════════════════
+
+// Cursor glow follow
+(function(){
+  const g = document.getElementById('cursor-glow');
+  if (!g) return;
+  let mx=window.innerWidth/2, my=window.innerHeight/2;
+  let cx=mx, cy=my;
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+  function lerp(a,b,t){return a+(b-a)*t}
+  function loop(){
+    cx=lerp(cx,mx,.1); cy=lerp(cy,my,.1);
+    g.style.left=cx+'px'; g.style.top=cy+'px';
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// Particle system
+(function(){
+  const canvas = document.getElementById('particles');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, particles=[];
+  const COLORS = ['rgba(155,32,128,', 'rgba(212,100,42,', 'rgba(191,168,24,', 'rgba(30,104,120,', 'rgba(74,31,110,'];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+  resize();
+  window.addEventListener('resize', resize);
+
+  class Particle {
+    constructor(){this.reset();}
+    reset(){
+      this.x = Math.random()*W;
+      this.y = Math.random()*H;
+      this.r = Math.random()*1.8+.4;
+      this.vx = (Math.random()-.5)*.3;
+      this.vy = (Math.random()-.5)*.3-(Math.random()*.15);
+      this.alpha = Math.random()*.5+.1;
+      this.color = COLORS[Math.floor(Math.random()*COLORS.length)];
+      this.life = 0;
+      this.maxLife = Math.random()*300+200;
+    }
+    update(){
+      this.x += this.vx; this.y += this.vy; this.life++;
+      if(this.life > this.maxLife || this.y < -10) this.reset();
+    }
+    draw(){
+      const progress = this.life/this.maxLife;
+      const alpha = this.alpha * Math.sin(progress*Math.PI);
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+      ctx.fillStyle = this.color+alpha+')';
+      ctx.fill();
+    }
+  }
+
+  for(let i=0;i<80;i++) particles.push(new Particle());
+
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{ p.update(); p.draw(); });
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// Number counter animation for stat cards
+function animateCount(el, target, duration=800){
+  if (!el) return;
+  const start = 0, step = target/((duration/16));
+  let cur = 0;
+  const t = setInterval(()=>{
+    cur = Math.min(cur+step, target);
+    el.textContent = Math.floor(cur);
+    if(cur >= target) clearInterval(t);
+  }, 16);
+}
+
+// 3D tilt on stat cards
+(function(){
+  document.addEventListener('mousemove', e => {
+    document.querySelectorAll('.sc').forEach(card => {
+      const r = card.getBoundingClientRect();
+      const cx = r.left+r.width/2, cy = r.top+r.height/2;
+      const dx = (e.clientX-cx)/r.width*14, dy = (e.clientY-cy)/r.height*14;
+      const dist = Math.hypot(e.clientX-cx, e.clientY-cy);
+      if(dist < 220){
+        card.style.transform = `translateY(-6px) scale(1.025) rotateY(${dx}deg) rotateX(${-dy}deg)`;
+        card.style.transition = 'transform .1s';
+      } else {
+        card.style.transform = '';
+        card.style.transition = 'transform .4s cubic-bezier(0.34,1.56,0.64,1)';
+      }
+    });
+  });
+})();
+
+// Ripple effect on buttons
+document.addEventListener('click', e => {
+  const btn = e.target.closest('.bp,.bsv,.tbb,.fbtn,.mnb,.bs,.bd,.scb,.wadd,.ast');
+  if (!btn) return;
+  const r = btn.getBoundingClientRect();
+  const rip = document.createElement('span');
+  const sz = Math.max(r.width,r.height)*2;
+  rip.style.cssText = `position:absolute;width:${sz}px;height:${sz}px;border-radius:50%;
+    background:rgba(255,255,255,.2);pointer-events:none;z-index:99;
+    transform:scale(0);transition:transform .5s ease,opacity .5s ease;
+    left:${e.clientX-r.left-sz/2}px;top:${e.clientY-r.top-sz/2}px`;
+  if(getComputedStyle(btn).position==='static') btn.style.position='relative';
+  btn.style.overflow='hidden';
+  btn.appendChild(rip);
+  requestAnimationFrame(()=>{ rip.style.transform='scale(1)'; rip.style.opacity='0'; });
+  setTimeout(()=>rip.remove(), 550);
+});
+
+// Stagger animation for task items when they appear
+function applyStagger(){
+  document.querySelectorAll('.ti').forEach((el,i)=>{
+    el.style.animation='none';
+    el.style.opacity='0';
+    el.style.transform='translateX(-14px)';
+    setTimeout(()=>{
+      el.style.transition='opacity .3s ease, transform .3s ease';
+      el.style.opacity='1';
+      el.style.transform='translateX(0)';
+    }, i*45);
+  });
+}
+
+// Patch render to trigger stagger
+const _origRender = render;
+window.render = function(){
+  _origRender();
+  setTimeout(applyStagger, 30);
+  // Animate stat counters after render
+  setTimeout(()=>{
+    document.querySelectorAll('.scv').forEach(el=>{
+      const v = parseInt(el.textContent);
+      if(!isNaN(v) && v>0){ el.textContent='0'; animateCount(el,v); }
+    });
+  }, 100);
+};
+
+// Typing animation for greeting
+function typewrite(el, text, speed=40){
+  if(!el)return;
+  el.textContent='';
+  let i=0;
+  const t=setInterval(()=>{
+    if(i<text.length){ el.textContent+=text[i]; i++; }
+    else clearInterval(t);
+  },speed);
+}
+
+// Patch rToday to use typewriter
+const _origRToday = rToday;
+window.rToday = function(){
+  _origRToday();
+  setTimeout(()=>{
+    const el = document.querySelector('#ct > div > div:first-child');
+    if(el && el.style.fontFamily){ /* greeting div */ }
+  },50);
+};
+
+// Animate progress bars when they appear
+const barObs = new MutationObserver(()=>{
+  document.querySelectorAll('.mpf').forEach(bar=>{
+    if(!bar.dataset.animated){
+      bar.dataset.animated='1';
+      const w = bar.style.width;
+      bar.style.width='0';
+      setTimeout(()=>{ bar.style.transition='width .9s cubic-bezier(0.34,1.56,0.64,1)'; bar.style.width=w; },50);
+    }
+  });
+});
+barObs.observe(document.getElementById('ct'), {childList:true,subtree:true});
+
+// Sidebar nav hover sound-like tactile feedback (scale)
+document.querySelectorAll('.ni').forEach(ni=>{
+  ni.addEventListener('mouseenter',()=>{ ni.style.transition='background .15s,transform .15s cubic-bezier(0.34,1.56,0.64,1)'; ni.style.transform='translateX(3px)'; });
+  ni.addEventListener('mouseleave',()=>{ ni.style.transform=''; });
+  ni.addEventListener('click',()=>{ ni.style.transform='scale(.97)'; setTimeout(()=>ni.style.transform='',150); });
+});
+
+// Glowing border follow on card hover
+document.querySelectorAll('.card,.sc,.modal,.ac').forEach(el=>{
+  el.addEventListener('mousemove', e=>{
+    const r=el.getBoundingClientRect();
+    const x=((e.clientX-r.left)/r.width*100).toFixed(1);
+    const y=((e.clientY-r.top)/r.height*100).toFixed(1);
+    el.style.setProperty('--gx',x+'%');
+    el.style.setProperty('--gy',y+'%');
+    el.style.borderColor=`rgba(155,32,128,.4)`;
+    el.style.boxShadow=`0 0 20px rgba(155,32,128,.12), inset 0 0 20px rgba(155,32,128,.03)`;
+  });
+  el.addEventListener('mouseleave',()=>{
+    el.style.borderColor=''; el.style.boxShadow='';
+  });
+});
+
+// Confetti on badge click
+document.querySelectorAll('.nbdg').forEach(b=>{
+  b.addEventListener('click',e=>{ e.stopPropagation(); confetti(); });
+});
+
+// Page load entrance animation
+window.addEventListener('load',()=>{
+  document.querySelectorAll('.ni').forEach((n,i)=>{
+    n.style.opacity='0'; n.style.transform='translateX(-20px)';
+    setTimeout(()=>{
+      n.style.transition='opacity .3s ease, transform .3s ease';
+      n.style.opacity=''; n.style.transform='';
+    }, 200+i*60);
+  });
+});
+
+// Floating action button pulse
+setInterval(()=>{
+  const btn=document.querySelector('.tbb');
+  if(btn){ btn.style.boxShadow='0 4px 24px rgba(155,32,128,.6)';
+    setTimeout(()=>{ btn.style.boxShadow='0 4px 16px rgba(155,32,128,.35)'; },400); }
+},3000);
+
 </script>
 </body>
 </html>
